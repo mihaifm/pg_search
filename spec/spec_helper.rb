@@ -1,5 +1,6 @@
 require "bundler/setup"
 require "pg_search"
+require "pry"
 
 begin
   require "pg"

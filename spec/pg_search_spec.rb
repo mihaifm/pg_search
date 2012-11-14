@@ -152,6 +152,33 @@ describe "an ActiveRecord model which includes PgSearch" do
         results.should_not include(excluded)
       end
 
+      context "when joining to an association" do
+        with_model :OtherModel do
+          table do |t|
+            t.belongs_to :model_with_pg_search
+          end
+
+          model do
+            belongs_to :model_with_pg_search
+          end
+        end
+
+        before do
+          ModelWithPgSearch.has_many :other_models
+        end
+
+        it "supports queries with periods" do
+          included = ModelWithPgSearch.create!(:content => 'bar.foo')
+          excluded = ModelWithPgSearch.create!(:content => 'foo.bar')
+
+          results = ModelWithPgSearch.search_content('bar.foo').eager_load(:other_models)
+          results.to_a
+
+          results.should include(included)
+          results.should_not include(excluded)
+        end
+      end
+
       it "returns rows where the column contains all the terms in the query in any order" do
         included = [ModelWithPgSearch.create!(:content => 'foo bar'),
                     ModelWithPgSearch.create!(:content => 'bar foo')]

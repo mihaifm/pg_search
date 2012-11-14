@@ -11,7 +11,15 @@ module PgSearch
     end
 
     def apply(scope)
-      scope.select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").where(conditions).order("pg_search_rank DESC, #{order_within_rank}").joins(joins)
+      relation = scope.select("#{quoted_table_name}.*, (#{rank}) AS pg_search_rank").where(conditions).order("pg_search_rank DESC, #{order_within_rank}").joins(joins)
+
+      class << relation
+        def eager_loading?
+          false
+        end
+      end
+
+      relation
     end
 
     private
