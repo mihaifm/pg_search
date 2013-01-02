@@ -61,7 +61,12 @@ module PgSearch
           "#{quoted_table_name}.#{column_name}"
         else
           columns.map do |search_column|
-            tsvector = "to_tsvector(:dictionary, #{normalize(search_column.to_sql)})"
+            tsvector = nil
+            if search_column.column_name =~ /to_tsvector/
+              tsvector = normalize(search_column.column_name)
+            else
+              tsvector = "to_tsvector(:dictionary, #{normalize(search_column.to_sql)})"
+            end
             if search_column.weight.nil?
               tsvector
             else
